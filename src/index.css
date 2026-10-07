@@ -1,0 +1,97 @@
+@import "@fontsource-variable/archivo";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-void: oklch(0.12 0.005 80);
+  --color-ink: oklch(0.16 0.006 80);
+  --color-plate: oklch(0.2 0.008 80);
+  --color-mist: oklch(0.93 0.012 85);
+  --color-mute: oklch(0.74 0.014 80);
+  --color-dim: oklch(0.62 0.012 80);
+  --radius-frame: 2px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background: var(--color-void);
+    color: var(--color-mist);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    font-size: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+    line-height: 1.55;
+    background:
+      radial-gradient(90rem 42rem at 88% -12%, oklch(0.3 0.034 78 / 0.42), transparent 58%),
+      radial-gradient(52rem 38rem at -8% 108%, oklch(0.22 0.022 72 / 0.34), transparent 54%),
+      var(--color-void);
+    color: var(--color-mist);
+    font-feature-settings: "ss01" 1, "kern" 1;
+    font-optical-sizing: auto;
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2 {
+    font-optical-sizing: auto;
+  }
+
+  ::selection {
+    background: var(--color-mist);
+    color: var(--color-void);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-mist);
+    outline-offset: 3px;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  img {
+    max-width: 100%;
+    display: block;
+  }
+
+  button {
+    font-family: inherit;
+  }
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: oklch(0.1 0.005 80);
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.32 0.01 80);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body[data-lightbox="open"] header,
+body[data-lightbox="open"] nav[aria-label="Salas do portfólio"],
+body[data-lightbox="open"] .page-noise {
+  visibility: hidden;
+}
