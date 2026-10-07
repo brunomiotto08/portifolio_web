@@ -1,16 +1,15 @@
 import type { LenisOptions } from "lenis";
 import { ReactLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+
+const phoneQuery = "(hover: none) and (pointer: coarse)";
 
 const options = {
   autoRaf: true,
   lerp: 0.32,
   wheelMultiplier: 1.15,
-  syncTouch: true,
-  touchMultiplier: 2,
-  syncTouchLerp: 0.28,
-  touchInertiaExponent: 1.8,
+  syncTouch: false,
   anchors: {
     duration: 0.55,
     easing: (t) => 1 - (1 - t) ** 3,
@@ -18,6 +17,10 @@ const options = {
   allowNestedScroll: true,
   stopInertiaOnNavigate: true,
 } satisfies LenisOptions;
+
+function isPhone() {
+  return window.matchMedia(phoneQuery).matches;
+}
 
 function keepHashWithoutNativeJump() {
   const onClick = (event: MouseEvent) => {
@@ -45,7 +48,22 @@ function keepHashWithoutNativeJump() {
 }
 
 export function SmoothScroll({ children }: { children: ReactNode }) {
-  useEffect(() => keepHashWithoutNativeJump(), []);
+  const [phone, setPhone] = useState(isPhone);
+
+  useEffect(() => {
+    const query = window.matchMedia(phoneQuery);
+    const sync = () => setPhone(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (phone) return;
+    return keepHashWithoutNativeJump();
+  }, [phone]);
+
+  if (phone) return children;
 
   return (
     <ReactLenis root options={options}>

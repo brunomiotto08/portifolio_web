@@ -80,6 +80,16 @@ html.lenis:not(.lenis-autoToggle).lenis-stopped {
   overflow: visible;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .scroll-base {
+    display: none;
+  }
+}
+
 .site {
   background: var(--color-obsidian);
 }
