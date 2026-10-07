@@ -1,11 +1,43 @@
-import { useEffect, useState } from "react";
-import { X } from "@phosphor-icons/react";
+import { useLenis } from "lenis/react";
+import { useEffect, useRef, useState } from "react";
+import { CaretDown, X } from "@phosphor-icons/react";
 import RotatingEarth from "./ui/wireframe-dotted-globe";
 import { projects } from "../data/projects";
 import { LINKEDIN, WHATSAPP, contact, hero, services } from "../data/site";
 import type { Shot } from "../data/types";
 
 type Viewer = { shots: Shot[]; index: number };
+
+function ScrollBase() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    let atEnd = false;
+    const update = () => {
+      const next = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+      if (next === atEnd) return;
+      atEnd = next;
+      node.classList.toggle("is-hidden", atEnd);
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  return (
+    <div className="scroll-base" ref={ref} aria-hidden="true">
+      <span />
+    </div>
+  );
+}
 
 function bentoRows(count: number): number[][] {
   const rows: number[][] = [];
@@ -67,6 +99,8 @@ function ProjectBento({
                   <img
                     src={shot.src}
                     alt={shot.alt}
+                    decoding="async"
+                    fetchPriority={start === 0 && index === 0 ? "high" : "low"}
                     loading={start === 0 && index === 0 ? "eager" : "lazy"}
                   />
                 </button>
@@ -81,6 +115,23 @@ function ProjectBento({
 
 export function Portfolio() {
   const [viewer, setViewer] = useState<Viewer | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const lenis = useLenis();
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!lenis) return;
+    if (viewer) lenis.stop();
+    else lenis.start();
+  }, [lenis, viewer]);
 
   useEffect(() => {
     if (!viewer) return;
@@ -115,19 +166,44 @@ export function Portfolio() {
 
   return (
     <div className="site">
-      <header className="nav-bar">
+      <header className={`nav-bar${menuOpen ? " is-open" : ""}`}>
+        {menuOpen ? (
+          <button
+            type="button"
+            className="nav-scrim"
+            aria-label="Fechar menu"
+            onClick={() => setMenuOpen(false)}
+          />
+        ) : null}
         <div className="nav">
-        <a className="brand" href="#inicio">
-          Bruno Miotto
-        </a>
-        <nav className="nav-links" aria-label="Seções">
-          <a href="#projetos">Projetos</a>
-          <a href="#servicos">Serviços</a>
-          <a href="#contato">Contato</a>
-        </nav>
-        <a className="pill" href={WHATSAPP} target="_blank" rel="noreferrer">
-          {hero.ctaQuote}
-        </a>
+          <a className="brand" href="#inicio" onClick={() => setMenuOpen(false)}>
+            Bruno Miotto
+          </a>
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-expanded={menuOpen}
+            aria-controls="site-menu"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? "Fechar" : "Menu"}
+          </button>
+          <div className="nav-panel" id="site-menu">
+            <nav className="nav-links" aria-label="Seções">
+              <a href="#projetos" onClick={() => setMenuOpen(false)}>
+                Projetos
+              </a>
+              <a href="#servicos" onClick={() => setMenuOpen(false)}>
+                Serviços
+              </a>
+              <a href="#contato" onClick={() => setMenuOpen(false)}>
+                Contato
+              </a>
+            </nav>
+            <a className="pill" href={WHATSAPP} target="_blank" rel="noreferrer">
+              {hero.ctaQuote}
+            </a>
+          </div>
         </div>
       </header>
 
@@ -140,26 +216,30 @@ export function Portfolio() {
           <div className="wrap hero-copy">
             <h1>Nossos Projetos</h1>
             <p className="lede">{hero.sub}</p>
+            <a className="hero-contact" href={WHATSAPP} target="_blank" rel="noreferrer">
+              Contato
+            </a>
           </div>
+          <a className="scroll-cue" href="#projetos">
+            <CaretDown size={18} weight="thin" />
+            <span className="sr-only">Rolar para ver o restante do site</span>
+          </a>
         </section>
 
         <section className="wrap block" id="projetos">
           {projects.map((project) => (
             <article className="case" key={project.id} id={project.id}>
               <div className="case-head">
-                <div>
-                  <div className="case-meta">
-                    <p className="eyebrow">{project.badge}</p>
-                    <span className="year">{project.year}</span>
-                  </div>
+                <div className="case-name">
+                  <p className="eyebrow">{project.badge}</p>
                   <h3>{project.name}</h3>
-                  <p>{project.hubDesc}</p>
                 </div>
                 {project.live ? (
                   <a className="ghost" href={project.live} target="_blank" rel="noreferrer">
                     Ver site
                   </a>
                 ) : null}
+                <p className="case-blurb">{project.hubDesc}</p>
               </div>
               <ProjectBento
                 shots={project.shots}
@@ -200,6 +280,8 @@ export function Portfolio() {
           <p className="legal">{contact.copy}</p>
         </section>
       </main>
+
+      <ScrollBase />
 
       {viewer ? (
         <div

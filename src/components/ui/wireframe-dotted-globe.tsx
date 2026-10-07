@@ -60,7 +60,7 @@ export default function RotatingEarth({ className = "" }: RotatingEarthProps) {
     const canvas = canvasRef.current;
     if (!stage || !canvas) return;
 
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!context) {
       setPhase("error");
       return;
@@ -79,8 +79,13 @@ export default function RotatingEarth({ className = "" }: RotatingEarthProps) {
     let width = 0;
     let height = 0;
     let land: LandCollection | null = null;
-    let dots: LngLat[] = [];
+    let dotPack: Float32Array | null = null;
     let cancelled = false;
+    let onScreen = true;
+    let pageShown = !document.hidden;
+    const pitch = (rotation[1] * Math.PI) / 180;
+    const cosPitch = Math.cos(pitch);
+    const sinPitch = Math.sin(pitch);
 
     const fit = () => {
       const rect = stage.getBoundingClientRect();
@@ -89,7 +94,7 @@ export default function RotatingEarth({ className = "" }: RotatingEarthProps) {
       if (width < 2 || height < 2) return;
 
       baseRadius = Math.min(width, height) * 0.47;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -127,33 +132,58 @@ export default function RotatingEarth({ className = "" }: RotatingEarthProps) {
       context.lineWidth = scaleFactor;
       context.stroke();
 
-      const dotRadius = 1.15 * scaleFactor;
-      context.beginPath();
-      for (const [lng, lat] of dots) {
-        const projected = projection([lng, lat]);
-        if (!projected) continue;
-        const [x, y] = projected;
-        context.moveTo(x + dotRadius, y);
-        context.arc(x, y, dotRadius, 0, Math.PI * 2);
-      }
+      if (!dotPack) return;
+
+      const yaw = (rotation[0] * Math.PI) / 180;
+      const cosYaw = Math.cos(yaw);
+      const sinYaw = Math.sin(yaw);
+      const cx = width / 2;
+      const cy = height / 2;
+      const size = Math.max(1.6, 2.3 * scaleFactor);
+      const half = size / 2;
       context.fillStyle = "#c8cad3";
-      context.fill();
+      for (let i = 0; i < dotPack.length; i += 3) {
+        const x0 = dotPack[i];
+        const y0 = dotPack[i + 1];
+        const z = dotPack[i + 2];
+        const x = x0 * cosYaw - y0 * sinYaw;
+        const y = x0 * sinYaw + y0 * cosYaw;
+        if (x * cosPitch - z * sinPitch < -0.02) continue;
+        context.fillRect(cx + currentScale * y - half, cy - currentScale * (z * cosPitch + x * sinPitch) - half, size, size);
+      }
     };
 
     fit();
     render();
 
-    let lastElapsed = 0;
-    const clock = timer((elapsed) => {
-      const dt = Math.min(Math.max(elapsed - lastElapsed, 0), 48);
-      lastElapsed = elapsed;
-      if (reduceMotion || dt === 0) return;
+    let lastDraw = 0;
+    let clockOn = !reduceMotion;
+    const tick = (elapsed: number) => {
+      const dt = Math.min(Math.max(elapsed - lastDraw, 0), 64);
+      if (dt < 32) return;
+      lastDraw = elapsed;
       const target = performance.now() < fastUntil ? scrollSpeed : baseSpeed;
       spin += (target - spin) * Math.min(1, dt / 180);
       rotation[0] += dt * spin;
       projection.rotate(rotation);
       render();
-    });
+    };
+    const clock = timer(tick);
+    if (reduceMotion) {
+      clock.stop();
+      clockOn = false;
+    }
+    const syncClock = () => {
+      const should = onScreen && pageShown && !reduceMotion;
+      if (should === clockOn) return;
+      clockOn = should;
+      if (should) {
+        lastDraw = 0;
+        clock.restart(tick);
+      } else {
+        clock.stop();
+      }
+    };
 
     const onScroll = () => {
       fastUntil = performance.now() + 160;
@@ -164,13 +194,33 @@ export default function RotatingEarth({ className = "" }: RotatingEarthProps) {
       render();
     });
     observer.observe(stage);
+    const visibility = new IntersectionObserver(([entry]) => {
+      onScreen = entry?.isIntersecting ?? false;
+      syncClock();
+    });
+    visibility.observe(stage);
+    const onPageShow = () => {
+      pageShown = !document.hidden;
+      syncClock();
+    };
+    document.addEventListener("visibilitychange", onPageShow);
     if (!reduceMotion) window.addEventListener("scroll", onScroll, { passive: true });
 
     loadGlobeAssets()
       .then((assets) => {
         if (cancelled) return;
         land = assets.land;
-        dots = assets.dots;
+        const pack = new Float32Array(assets.dots.length * 3);
+        for (let i = 0; i < assets.dots.length; i += 1) {
+          const lng = assets.dots[i][0] * Math.PI / 180;
+          const lat = assets.dots[i][1] * Math.PI / 180;
+          const cosLat = Math.cos(lat);
+          const offset = i * 3;
+          pack[offset] = cosLat * Math.cos(lng);
+          pack[offset + 1] = cosLat * Math.sin(lng);
+          pack[offset + 2] = Math.sin(lat);
+        }
+        dotPack = pack;
         render();
         setPhase("ready");
       })
@@ -182,6 +232,8 @@ export default function RotatingEarth({ className = "" }: RotatingEarthProps) {
       cancelled = true;
       clock.stop();
       observer.disconnect();
+      visibility.disconnect();
+      document.removeEventListener("visibilitychange", onPageShow);
       window.removeEventListener("scroll", onScroll);
     };
   }, []);

@@ -1,7 +1,7 @@
 export const WHATSAPP = "https://wa.me/5554999252321";
 export const PHONE_TEL = "tel:+5554999252321";
 export const PHONE_LABEL = "+55 (54) 99925-2321";
-export const LINKEDIN = "https://linkedin.com/in/brunomiotto08";
+export const LINKEDIN = "https://www.linkedin.com/in/bruno-miotto";
 export const GITHUB = "https://github.com/brunomiotto08";
 
 export const nav = [
