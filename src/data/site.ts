@@ -15,7 +15,7 @@ export const nav = [
 export const hero = {
   kicker: "Portfólio especializado",
   title: "Portfólio de Websites",
-  sub: "Sites institucionais, landing pages e experiências web em produção.",
+  sub: "Sites Institucionais, landing pages e experiências web globais!",
   pitch:
     "Cada projeto combina narrativa visual, performance e conversão, do wireframe ao deploy, com foco em credibilidade e resultado de negócio.",
   ctaProjects: "Ver projetos",
@@ -34,7 +34,7 @@ export const projectsSection = {
 };
 
 export const services = {
-  title: "O que eu construo",
+  title: "O que construímos",
   sub: "Websites pensados para converter visitantes em clientes, não apenas páginas bonitas.",
   items: [
     {
@@ -80,7 +80,7 @@ export const stack = {
 export const contact = {
   title: "Quer um website como estes?",
   sub: "Me conte sobre seu projeto. Respondo em até 24h.",
-  copy: "© 2026 Bruno Miotto · Caxias do Sul, RS",
+  copy: "© 2026 Bruno Miotto",
 };
 
 export const labels = {

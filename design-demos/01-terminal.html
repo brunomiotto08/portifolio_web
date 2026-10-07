@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Direção 01 · Terminal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Roleta 16 · Terminal-Core. Carvão e papel quente do estilo.
+         Acento = cobre do portfólio, não neon. Um site por janela. */
+      :root {
+        --void: #0c0d11;
+        --paper: #f2f0ef;
+        --quiet: #9a9692;
+        --line: #2a2c33;
+        --copper: #cc9166;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; background: var(--void); color: var(--paper); }
+      body {
+        font-family: Geist, ui-sans-serif, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        text-wrap: pretty;
+      }
+      a { color: inherit; }
+      .page { width: min(1240px, calc(100% - 128px)); margin: 0 auto; padding: 36px 0 160px; }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 64px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand, nav a, .ask {
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 13px;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+      }
+      nav { display: flex; gap: 28px; }
+      nav a { color: var(--quiet); }
+      nav a:hover { color: var(--paper); }
+      .ask { color: var(--copper); }
+      .stage {
+        display: grid;
+        grid-template-columns: 0.78fr 1.22fr;
+        gap: 88px;
+        align-items: end;
+        padding-top: 96px;
+      }
+      .kicker {
+        margin: 0 0 28px;
+        color: var(--copper);
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+      }
+      h1 {
+        margin: 0;
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: clamp(48px, 5vw, 72px);
+        font-weight: 400;
+        line-height: 0.96;
+        letter-spacing: -0.04em;
+      }
+      .lede {
+        max-width: 34ch;
+        margin: 28px 0 0;
+        color: var(--quiet);
+        font-size: 16px;
+      }
+      .index { margin: 56px 0 0; padding: 0; list-style: none; }
+      .index li { border-top: 1px solid var(--line); }
+      .index a {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 16px 0;
+        color: var(--paper);
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 14px;
+        text-decoration: none;
+      }
+      .index a span { color: var(--quiet); }
+      .index a.is-on { color: var(--copper); }
+      figure { margin: 0; }
+      .window {
+        border: 1px solid var(--line);
+        background: #08090c;
+      }
+      .chrome {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--line);
+        color: var(--quiet);
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 12px;
+      }
+      img { display: block; width: 100%; height: auto; }
+      figcaption {
+        margin-top: 14px;
+        color: var(--quiet);
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+      }
+      @media (max-width: 900px) {
+        .page { width: min(1240px, calc(100% - 40px)); }
+        .stage { grid-template-columns: 1fr; gap: 48px; padding-top: 56px; }
+        nav { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a class="brand" href="#inicio">bruno miotto</a>
+        <nav>
+          <a href="#trabalhos">trabalhos</a>
+          <a href="#contato">contato</a>
+        </nav>
+        <a class="ask" href="https://wa.me/5554999252321">solicitar orçamento</a>
+      </header>
+      <main class="stage" id="inicio">
+        <div>
+          <p class="kicker">CAXIAS DO SUL</p>
+          <h1>Portfólio<br />de websites.</h1>
+          <p class="lede">Sites institucionais, landing pages e experiências web em produção.</p>
+          <ul class="index" id="trabalhos">
+            <li><a class="is-on" href="#stellamaris">01 Stellamaris <span>2026</span></a></li>
+            <li><a href="#nelci">02 Nelci <span>2026</span></a></li>
+            <li><a href="#habilita">03 Habilita <span>2026</span></a></li>
+            <li><a href="#vektor">04 Vektor <span>2026</span></a></li>
+          </ul>
+        </div>
+        <figure id="stellamaris">
+          <div class="window">
+            <div class="chrome"><span>stellamaris-cidadania</span><span>ao vivo</span></div>
+            <img src="../public/assets/portfolio/stellamaris-website/page-01.webp" alt="Hero Stellamaris Cidadania" />
+          </div>
+          <figcaption>Stellamaris Cidadania · Jurídico</figcaption>
+        </figure>
+      </main>
+    </div>
+  </body>
+</html>
